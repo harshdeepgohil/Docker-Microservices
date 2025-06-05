@@ -1,0 +1,89 @@
+# version: '3.8'
+# services:
+#   consul:
+#     image: hashicorp/consul:1.15
+#     ports:
+#       - "8500:8500"
+#     healthcheck:
+#       test: ["CMD", "curl", "-f", "http://localhost:8500/v1/status/leader"]
+#       interval: 5s
+#       timeout: 3s
+#       retries: 10
+#     command: "consul agent -dev -client=0.0.0.0"
+
+#   productapi:
+#     build:
+#       context: ./Services/Product.Services.ProductAPI
+#       dockerfile: Dockerfile
+#     container_name: productapi
+#     ports:
+#       - "5001:80"
+#     environment:
+#       - ASPNETCORE_URLS=http://0.0.0.0:80
+      
+#     depends_on:
+#       consul:
+#         condition: service_healthy
+
+#   gatewayapi:
+#     build:
+#       context: ./GateWayAPI
+#       dockerfile: Dockerfile
+#     container_name: gatewayapi
+#     ports:
+#       - "5297:80"
+#     environment:
+#       - ASPNETCORE_URLS=http://0.0.0.0:80
+#     depends_on:
+#       - consul
+#       - productapi
+
+
+# Remove the version line for modern Compose (optional but recommended)
+# version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+    ports:
+      - "8081:80"       # HTTP entrypoint (you can change to 80:80 if port 80 is free)
+      - "8080:8080"     # Traefik dashboard (optional)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+  productapi:
+    build:
+      context: ./Services/Product.Services.ProductAPI
+      dockerfile: Dockerfile
+    container_name: productapi
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    labels:
+    - "traefik.enable=true"
+    - "traefik.http.routers.productapi.rule=PathPrefix(`/productapi`)"
+    - "traefik.http.middlewares.productapi-stripprefix.stripPrefix.prefixes=/productapi"
+    - "traefik.http.routers.productapi.middlewares=productapi-stripprefix@docker"
+    - "traefik.http.services.productapi.loadbalancer.server.port=80"
+
+  orderapi:
+    build:
+      context: ./Services/Order.Services.OrderAPI
+      dockerfile: Dockerfile
+    container_name: orderapi
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:80
+    labels:
+     - "traefik.enable=true"
+     - "traefik.http.routers.orderapi.rule=PathPrefix(`/orderapi`)"
+     - "traefik.http.middlewares.orderapi-stripprefix.stripPrefix.prefixes=/orderapi"
+     - "traefik.http.routers.orderapi.middlewares=orderapi-stripprefix@docker"
+     - "traefik.http.services.orderapi.loadbalancer.server.port=80"
+
+
+# All services will be on the default network, which Traefik will detect.

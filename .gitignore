@@ -1,0 +1,38 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+# Ignore build output (including in child directories)
+**/bin/
+/**/obj/
+# Ignore Visual Studio directories
+.vs/
+.idea/
+# Ignore NuGet packages
+/packages/
+# Ignore logs and debug files
+*.log
+*.vspscc
+# Ignore ASP.NET temporary files
+**/aspnet-client/
+# Ignore compiled binaries
+*.dll
+*.exe
+*.pdb
+*.cache
+*.bak
+# Ignore all the build directories (in child folders)
+**/obj/
+/**/bin/
+# Ignore project lock files in all subdirectories
+project.lock.json
+project.fragment.lock.json
+# Ignore specific configuration files
+*.config
+# Ignore any files in node_modules or equivalent folders in subdirectories
+node_modules/
