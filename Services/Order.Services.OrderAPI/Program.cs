@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Order.Services.OrderAPI;
 using Order.Services.OrderAPI.Data;
 
@@ -17,7 +18,12 @@ builder.Services.AddControllers();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Order API", Version = "v1" });
+    c.AddServer(new OpenApiServer { Url = "/orderapi" });
+});
 
 
 builder.Services.AddCors(options =>
@@ -30,11 +36,18 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//}
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/orderapi/swagger/v1/swagger.json", "Order API V1");
+    c.RoutePrefix = "swagger";
+});
 
 app.UseCors();
 app.UseHttpsRedirection();

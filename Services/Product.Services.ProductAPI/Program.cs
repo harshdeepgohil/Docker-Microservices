@@ -1,5 +1,7 @@
 using Consul;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Ocelot.Values;
 using Product.Services.ProductAPI;
 using Product.Services.ProductAPI.Data;
 
@@ -20,7 +22,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Product API", Version = "v1" });
+    c.AddServer(new OpenApiServer { Url = "/productapi" });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
@@ -34,7 +42,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment() || true)
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/productapi/swagger/v1/swagger.json", "Product API V1");
+        c.RoutePrefix = "swagger";
+    });
 }
 app.UseCors();
 app.UseHttpsRedirection();
