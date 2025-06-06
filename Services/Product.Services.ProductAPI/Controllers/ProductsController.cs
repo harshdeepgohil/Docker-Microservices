@@ -21,6 +21,14 @@ namespace Product.Services.ProductAPI.Controllers
         [HttpGet("ping")]
         public IActionResult Ping() => Ok("pong");
 
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {
+            var product = _context.Products.Find(id);
+            if (product == null) return NotFound();
+            return Ok(product);
+        }
+
         [HttpGet("GetProducts")]
         public Response GetProducts()
         {
@@ -70,6 +78,9 @@ namespace Product.Services.ProductAPI.Controllers
             }
             return _response;
         }
+
+        
+
 
     }
 }

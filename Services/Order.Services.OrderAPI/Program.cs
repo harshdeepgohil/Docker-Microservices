@@ -22,7 +22,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "Order API", Version = "v1" });
-    c.AddServer(new OpenApiServer { Url = "/orderapi" });
+    var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    if (isDocker)
+        c.AddServer(new OpenApiServer { Url = "/orderapi" });
 });
 
 
@@ -43,10 +45,13 @@ var app = builder.Build();
 //}
 
 app.UseSwagger();
-app.UseSwaggerUI(c =>
+app.UseSwaggerUI(options =>
 {
-    c.SwaggerEndpoint("/orderapi/swagger/v1/swagger.json", "Order API V1");
-    c.RoutePrefix = "swagger";
+    var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+    if (isDocker)
+        options.SwaggerEndpoint("/orderapi/swagger/v1/swagger.json", "Order API V1");
+    else
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Order API V1");
 });
 
 app.UseCors();

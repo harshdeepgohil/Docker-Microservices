@@ -12,6 +12,14 @@ Then, run the following command to build and start all required Docker container
 ```bash
 docker-compose up --build
 
+🔄 Alternatively: Pull Pre-built Docker Images
+Instead of building images locally, you can also pull the pre-built images directly from Docker Hub.
+
+Images are hosted at:
+👉 https://hub.docker.com/r/harshdeep2104/microservices-docker
+
+Go to the Tags tab to find all available image versions.
+
 In addition, you should have a **basic understanding of Docker** and be familiar with common Docker commands such as:
 
 - `docker build`
